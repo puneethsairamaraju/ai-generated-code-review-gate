@@ -1,0 +1,266 @@
+diff --git a/libs/community/langchain_community/utilities/__init__.py b/libs/community/langchain_community/utilities/__init__.py
+index 3a5184e7c0310..dd9565ec05f21 100644
+--- a/libs/community/langchain_community/utilities/__init__.py
++++ b/libs/community/langchain_community/utilities/__init__.py
+@@ -122,9 +122,6 @@
+     from langchain_community.utilities.pubmed import (
+         PubMedAPIWrapper,
+     )
+-    from langchain_community.utilities.python import (
+-        PythonREPL,
+-    )
+     from langchain_community.utilities.rememberizer import RememberizerAPIWrapper
+     from langchain_community.utilities.requests import (
+         Requests,
+@@ -215,7 +212,6 @@
+     "Portkey",
+     "PowerBIDataset",
+     "PubMedAPIWrapper",
+-    "PythonREPL",
+     "RememberizerAPIWrapper",
+     "Requests",
+     "RequestsWrapper",
+@@ -279,7 +275,6 @@
+     "Portkey": "langchain_community.utilities.portkey",
+     "PowerBIDataset": "langchain_community.utilities.powerbi",
+     "PubMedAPIWrapper": "langchain_community.utilities.pubmed",
+-    "PythonREPL": "langchain_community.utilities.python",
+     "RememberizerAPIWrapper": "langchain_community.utilities.rememberizer",
+     "Requests": "langchain_community.utilities.requests",
+     "RequestsWrapper": "langchain_community.utilities.requests",
+@@ -302,8 +297,21 @@
+     "ZapierNLAWrapper": "langchain_community.utilities.zapier",
+ }
+ 
++REMOVED = {
++    "PythonREPL": (
++        "PythonREPL has been deprecated from langchain_community "
++        "due to being flagged by security scanners. See: "
++        "https://github.com/langchain-ai/langchain/issues/14345 "
++        "If you need to use it, please use the version "
++        "from langchain_experimental. "
++        "from langchain_experimental.utilities.python import PythonREPL."
++    )
++}
++
+ 
+ def __getattr__(name: str) -> Any:
++    if name in REMOVED:
++        raise AssertionError(REMOVED[name])
+     if name in _module_lookup:
+         module = importlib.import_module(_module_lookup[name])
+         return getattr(module, name)
+diff --git a/libs/community/langchain_community/utilities/python.py b/libs/community/langchain_community/utilities/python.py
+index 70c3119e5f6a1..06c2016207a70 100644
+--- a/libs/community/langchain_community/utilities/python.py
++++ b/libs/community/langchain_community/utilities/python.py
+@@ -1,71 +1,17 @@
+-import functools
+ import logging
+-import multiprocessing
+-import sys
+-from io import StringIO
+-from typing import Dict, Optional
+-
+-from langchain_core.pydantic_v1 import BaseModel, Field
++from typing import Any
+ 
+ logger = logging.getLogger(__name__)
+ 
+ 
+-@functools.lru_cache(maxsize=None)
+-def warn_once() -> None:
+-    """Warn once about the dangers of PythonREPL."""
+-    logger.warning("Python REPL can execute arbitrary code. Use with caution.")
+-
+-
+-class PythonREPL(BaseModel):
+-    """Simulates a standalone Python REPL."""
+-
+-    globals: Optional[Dict] = Field(default_factory=dict, alias="_globals")
+-    locals: Optional[Dict] = Field(default_factory=dict, alias="_locals")
+-
+-    @classmethod
+-    def worker(
+-        cls,
+-        command: str,
+-        globals: Optional[Dict],
+-        locals: Optional[Dict],
+-        queue: multiprocessing.Queue,
+-    ) -> None:
+-        old_stdout = sys.stdout
+-        sys.stdout = mystdout = StringIO()
+-        try:
+-            exec(command, globals, locals)
+-            sys.stdout = old_stdout
+-            queue.put(mystdout.getvalue())
+-        except Exception as e:
+-            sys.stdout = old_stdout
+-            queue.put(repr(e))
+-
+-    def run(self, command: str, timeout: Optional[int] = None) -> str:
+-        """Run command with own globals/locals and returns anything printed.
+-        Timeout after the specified number of seconds."""
+-
+-        # Warn against dangers of PythonREPL
+-        warn_once()
+-
+-        queue: multiprocessing.Queue = multiprocessing.Queue()
+-
+-        # Only use multiprocessing if we are enforcing a timeout
+-        if timeout is not None:
+-            # create a Process
+-            p = multiprocessing.Process(
+-                target=self.worker, args=(command, self.globals, self.locals, queue)
+-            )
+-
+-            # start it
+-            p.start()
+-
+-            # wait for the process to finish or kill it after timeout seconds
+-            p.join(timeout)
+-
+-            if p.is_alive():
+-                p.terminate()
+-                return "Execution timed out"
+-        else:
+-            self.worker(command, self.globals, self.locals, queue)
+-        # get the result from the worker function
+-        return queue.get()
++def __getattr__(name: str) -> Any:
++    if name in "PythonREPL":
++        raise AssertionError(
++            "PythonREPL has been deprecated from langchain_community due to being "
++            "flagged by security scanners. See: "
++            "https://github.com/langchain-ai/langchain/issues/14345 "
++            "If you need to use it, please use the version "
++            "from langchain_experimental. "
++            "from langchain_experimental.utilities.python import PythonREPL."
++        )
++    raise AttributeError(f"module {__name__} has no attribute {name}")
+diff --git a/libs/community/tests/unit_tests/utilities/test_imports.py b/libs/community/tests/unit_tests/utilities/test_imports.py
+index bbe24e3e3a04c..0511820fa8999 100644
+--- a/libs/community/tests/unit_tests/utilities/test_imports.py
++++ b/libs/community/tests/unit_tests/utilities/test_imports.py
+@@ -41,7 +41,6 @@
+     "Portkey",
+     "PowerBIDataset",
+     "PubMedAPIWrapper",
+-    "PythonREPL",
+     "Requests",
+     "RequestsWrapper",
+     "RememberizerAPIWrapper",
+diff --git a/libs/experimental/langchain_experimental/pal_chain/base.py b/libs/experimental/langchain_experimental/pal_chain/base.py
+index 3cb6a1621a436..266020d993e65 100644
+--- a/libs/experimental/langchain_experimental/pal_chain/base.py
++++ b/libs/experimental/langchain_experimental/pal_chain/base.py
+@@ -12,13 +12,13 @@
+ 
+ from langchain.chains.base import Chain
+ from langchain.chains.llm import LLMChain
+-from langchain_community.utilities import PythonREPL
+ from langchain_core.callbacks.manager import CallbackManagerForChainRun
+ from langchain_core.language_models import BaseLanguageModel
+ 
+ from langchain_experimental.pal_chain.colored_object_prompt import COLORED_OBJECT_PROMPT
+ from langchain_experimental.pal_chain.math_prompt import MATH_PROMPT
+ from langchain_experimental.pydantic_v1 import Extra, Field, root_validator
++from langchain_experimental.utilities import PythonREPL
+ 
+ COMMAND_EXECUTION_FUNCTIONS = ["system", "exec", "execfile", "eval", "__import__"]
+ COMMAND_EXECUTION_ATTRIBUTES = [
+diff --git a/libs/langchain/langchain/python.py b/libs/langchain/langchain/python.py
+index 92397f0d861e2..f1fdf538b45fd 100644
+--- a/libs/langchain/langchain/python.py
++++ b/libs/langchain/langchain/python.py
+@@ -1,11 +1,11 @@
+ """For backwards compatibility."""
+-from typing import TYPE_CHECKING, Any
++from typing import Any
+ 
+ from langchain._api import create_importer
+ 
+-if TYPE_CHECKING:
+-    from langchain_community.utilities.python import PythonREPL
+-
++# Code has been removed from the community package as well.
++# We'll proxy to community package, which will raise an appropriate exception,
++# but we'll not include this in __all__, so it won't be listed as importable.
+ 
+ _importer = create_importer(
+     __package__,
+@@ -16,6 +16,3 @@
+ def __getattr__(name: str) -> Any:
+     """Look up attributes dynamically."""
+     return _importer(name)
+-
+-
+-__all__ = ["PythonREPL"]
+diff --git a/libs/langchain/langchain/utilities/__init__.py b/libs/langchain/langchain/utilities/__init__.py
+index 66cd02b5463d0..21ce14366ce9a 100644
+--- a/libs/langchain/langchain/utilities/__init__.py
++++ b/libs/langchain/langchain/utilities/__init__.py
+@@ -38,7 +38,6 @@
+         Portkey,
+         PowerBIDataset,
+         PubMedAPIWrapper,
+-        PythonREPL,
+         Requests,
+         RequestsWrapper,
+         SceneXplainAPIWrapper,
+@@ -90,6 +89,8 @@
+     "Portkey": "langchain_community.utilities",
+     "PowerBIDataset": "langchain_community.utilities",
+     "PubMedAPIWrapper": "langchain_community.utilities",
++    # We will not list PythonREPL in __all__ since it has been removed from community
++    # it'll proxy to community package, which will raise an appropriate exception.
+     "PythonREPL": "langchain_community.utilities",
+     "Requests": "langchain_community.utilities",
+     "SteamWebAPIWrapper": "langchain_community.utilities",
+@@ -147,7 +148,6 @@ def __getattr__(name: str) -> Any:
+     "Portkey",
+     "PowerBIDataset",
+     "PubMedAPIWrapper",
+-    "PythonREPL",
+     "Requests",
+     "SteamWebAPIWrapper",
+     "SQLDatabase",
+diff --git a/libs/langchain/langchain/utilities/python.py b/libs/langchain/langchain/utilities/python.py
+index 92397f0d861e2..f1fdf538b45fd 100644
+--- a/libs/langchain/langchain/utilities/python.py
++++ b/libs/langchain/langchain/utilities/python.py
+@@ -1,11 +1,11 @@
+ """For backwards compatibility."""
+-from typing import TYPE_CHECKING, Any
++from typing import Any
+ 
+ from langchain._api import create_importer
+ 
+-if TYPE_CHECKING:
+-    from langchain_community.utilities.python import PythonREPL
+-
++# Code has been removed from the community package as well.
++# We'll proxy to community package, which will raise an appropriate exception,
++# but we'll not include this in __all__, so it won't be listed as importable.
+ 
+ _importer = create_importer(
+     __package__,
+@@ -16,6 +16,3 @@
+ def __getattr__(name: str) -> Any:
+     """Look up attributes dynamically."""
+     return _importer(name)
+-
+-
+-__all__ = ["PythonREPL"]
+diff --git a/libs/langchain/tests/unit_tests/utilities/test_imports.py b/libs/langchain/tests/unit_tests/utilities/test_imports.py
+index 895988ed09774..c1d6e10842be0 100644
+--- a/libs/langchain/tests/unit_tests/utilities/test_imports.py
++++ b/libs/langchain/tests/unit_tests/utilities/test_imports.py
+@@ -29,7 +29,6 @@
+     "Portkey",
+     "PowerBIDataset",
+     "PubMedAPIWrapper",
+-    "PythonREPL",
+     "Requests",
+     "RequestsWrapper",
+     "SQLDatabase",

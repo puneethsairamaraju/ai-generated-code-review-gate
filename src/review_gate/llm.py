@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from pathlib import Path
 import urllib.error
 import urllib.request
@@ -44,9 +45,10 @@ def review_with_openai(diff_text: str, rubric_path: Path, model: str) -> tuple[l
     return review_with_provider(diff_text, rubric_path, model, "openai")
 
 
-def review_with_provider(diff_text: str, rubric_path: Path, model: str, provider: str) -> tuple[list[Finding], list[dict]]:
+def review_with_provider(diff_text: str, rubric_path: Path, model: str, provider: str, telemetry: dict | None = None) -> tuple[list[Finding], list[dict]]:
     if provider not in ("openai", "gemini"):
         raise RuntimeError("Unsupported provider")
+    added_lines(diff_text)
     key_name = "GEMINI_API_KEY" if provider == "gemini" else "OPENAI_API_KEY"
     api_key = os.environ.get(key_name)
     if not api_key:
@@ -106,11 +108,20 @@ def review_with_provider(diff_text: str, rubric_path: Path, model: str, provider
         url = "https://api.openai.com/v1/responses"
         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     request = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers, method="POST")
+    started = time.perf_counter()
     try:
         with urllib.request.urlopen(request, timeout=90) as response:
             body = json.loads(response.read())
     except urllib.error.HTTPError as exc:
         raise RuntimeError(f"{provider} API returned HTTP {exc.code}") from exc
+    if not isinstance(body, dict):
+        raise RuntimeError("Invalid provider response")
+    if telemetry is not None:
+        usage = body.get("usageMetadata", {}) if provider == "gemini" else body.get("usage", {})
+        telemetry.update(api_latency_seconds=round(time.perf_counter() - started, 6),
+                         input_tokens=usage.get("promptTokenCount" if provider == "gemini" else "input_tokens"),
+                         output_tokens=usage.get("candidatesTokenCount" if provider == "gemini" else "output_tokens"),
+                         thinking_tokens=usage.get("thoughtsTokenCount", 0) if provider == "gemini" else 0)
     try:
         if provider == "gemini":
             candidates = body.get("candidates", [])

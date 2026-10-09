@@ -1,0 +1,55 @@
+[
+  {
+    "scenario": "unsafe",
+    "exit_code": 1,
+    "report": {
+      "passed": false,
+      "summary": {
+        "blocking": 1,
+        "advisory": 0,
+        "total": 1
+      },
+      "findings": [
+        {
+          "rule_id": "SEC003",
+          "title": "Dangerous dynamic execution",
+          "severity": "blocking",
+          "file": "app.py",
+          "line": 1,
+          "evidence": "eval(user_input)",
+          "reasoning": "Dynamic execution can turn untrusted input into arbitrary code execution.",
+          "source": "static"
+        }
+      ],
+      "rubric_results": [],
+      "metadata": {
+        "total_latency_seconds": 9e-05,
+        "estimated_cost_usd": null,
+        "llm_enabled": false,
+        "provider": null,
+        "model": null
+      }
+    }
+  },
+  {
+    "scenario": "clean",
+    "exit_code": 0,
+    "report": {
+      "passed": true,
+      "summary": {
+        "blocking": 0,
+        "advisory": 0,
+        "total": 0
+      },
+      "findings": [],
+      "rubric_results": [],
+      "metadata": {
+        "total_latency_seconds": 4.2e-05,
+        "estimated_cost_usd": null,
+        "llm_enabled": false,
+        "provider": null,
+        "model": null
+      }
+    }
+  }
+]

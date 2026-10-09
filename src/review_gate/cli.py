@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 
 from .benchmark import run_benchmark
 from .diff import added_lines
@@ -36,6 +37,8 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--llm", action="store_true", help="Enable the selected AI rubric reviewer")
     review.add_argument("--provider", choices=["openai", "gemini"], default="openai")
     review.add_argument("--model", help="Provider model ID")
+    review.add_argument("--input-usd-per-million", type=float)
+    review.add_argument("--output-usd-per-million", type=float)
     review.add_argument("--output", type=Path, default=Path("review-report.json"))
     review.add_argument("--markdown", type=Path)
     bench = sub.add_parser("benchmark", help="Measure deterministic rule performance")
@@ -60,16 +63,28 @@ def main(argv: list[str] | None = None) -> int:
             diff_text = sys.stdin.read() if str(args.diff) == "-" else args.diff.read_text(encoding="utf-8")
         else:
             diff_text = _git_diff(args.base, args.head)
+        started = time.perf_counter()
+        telemetry = {}
         findings = run_static_rules(added_lines(diff_text))
         rubric_results: list[dict] = []
         if args.llm:
-            llm_findings, rubric_results = review_with_provider(diff_text, args.rubric, args.model, args.provider)
+            llm_findings, rubric_results = review_with_provider(diff_text, args.rubric, args.model, args.provider, telemetry)
             findings.extend(llm_findings)
+        telemetry["total_latency_seconds"] = round(time.perf_counter() - started, 6)
+        telemetry["estimated_cost_usd"] = None
+        if args.llm and args.input_usd_per_million is not None and args.output_usd_per_million is not None:
+            if min(args.input_usd_per_million, args.output_usd_per_million) < 0:
+                raise RuntimeError("Token prices must be nonnegative")
+            if telemetry.get("input_tokens") is not None and telemetry.get("output_tokens") is not None:
+                telemetry["estimated_cost_usd"] = (telemetry["input_tokens"] * args.input_usd_per_million +
+                    (telemetry["output_tokens"] + telemetry["thinking_tokens"]) * args.output_usd_per_million) / 1_000_000
+                telemetry["pricing"] = {"input_usd_per_million": args.input_usd_per_million,
+                                        "output_usd_per_million": args.output_usd_per_million}
         report = ReviewReport(
             passed=not any(item.severity == "blocking" for item in findings),
             findings=findings,
             rubric_results=rubric_results,
-            metadata={"llm_enabled": args.llm, "provider": args.provider if args.llm else None, "model": args.model if args.llm else None},
+            metadata={**telemetry, "llm_enabled": args.llm, "provider": args.provider if args.llm else None, "model": args.model if args.llm else None},
         )
         write_json(report, args.output)
         rendered = markdown(report)

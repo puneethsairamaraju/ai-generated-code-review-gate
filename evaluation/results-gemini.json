@@ -1,0 +1,101 @@
+{
+  "dataset": "agent-reviewed PR pilot; not human gold labels",
+  "cases": 4,
+  "mode": "hybrid-gemini",
+  "confusion_matrix": {
+    "true_positive": 0,
+    "false_positive": 0,
+    "true_negative": 4,
+    "false_negative": 0
+  },
+  "false_positive_rate": 0.0,
+  "missed_issue_rate": null,
+  "errors": 0,
+  "median_latency_seconds": 11.9438345,
+  "estimated_cost_usd": 0.043866,
+  "pricing": {
+    "input_per_million": 0.75,
+    "output_per_million": 3.75,
+    "currency": "USD",
+    "as_of": "2026-10-09",
+    "source": "https://ai.google.dev/gemini-api/docs/latest-model",
+    "note": "List-price estimate including thinking tokens; not an invoice. Failed requests may incur unobserved cost."
+  },
+  "details": [
+    {
+      "id": "psf-6865",
+      "expected_block": false,
+      "blocked": false,
+      "outcome": "true_negative",
+      "findings": [],
+      "latency_seconds": 10.369447,
+      "usage": {
+        "api_latency_seconds": 10.368689,
+        "input_tokens": 516,
+        "output_tokens": 457,
+        "thinking_tokens": 720
+      },
+      "estimated_cost_usd": 0.00480075
+    },
+    {
+      "id": "langchain-ai-11302",
+      "expected_block": false,
+      "blocked": false,
+      "outcome": "true_negative",
+      "findings": [],
+      "latency_seconds": 8.428174,
+      "usage": {
+        "api_latency_seconds": 8.42651,
+        "input_tokens": 7443,
+        "output_tokens": 342,
+        "thinking_tokens": 710
+      },
+      "estimated_cost_usd": 0.00952725
+    },
+    {
+      "id": "langchain-ai-5291",
+      "expected_block": false,
+      "blocked": false,
+      "outcome": "true_negative",
+      "findings": [],
+      "latency_seconds": 13.518222,
+      "usage": {
+        "api_latency_seconds": 13.517671,
+        "input_tokens": 564,
+        "output_tokens": 401,
+        "thinking_tokens": 1249
+      },
+      "estimated_cost_usd": 0.0066105
+    },
+    {
+      "id": "langchain-ai-22904",
+      "expected_block": false,
+      "blocked": false,
+      "outcome": "true_negative",
+      "findings": [
+        {
+          "rule": "RUBRIC-TESTS",
+          "file": "libs/community/langchain_community/utilities/__init__.py",
+          "line": 300,
+          "severity": "advisory",
+          "reasoning": "The change introduces explicit deprecation handling and error messaging upon accessing PythonREPL, but no tests were added or updated to assert that this migration error is raised properly; test files only had the symbol removed."
+        },
+        {
+          "rule": "RUBRIC-MAINTAINABILITY",
+          "file": "libs/community/langchain_community/utilities/python.py",
+          "line": 8,
+          "severity": "advisory",
+          "reasoning": "The check `name in \"PythonREPL\"` tests substring membership against a string literal rather than exact equality, causing any substring (such as 'P' or 'REPL') to unexpectedly match and trigger an AssertionError."
+        }
+      ],
+      "latency_seconds": 38.030846,
+      "usage": {
+        "api_latency_seconds": 38.029283,
+        "input_tokens": 3490,
+        "output_tokens": 579,
+        "thinking_tokens": 4837
+      },
+      "estimated_cost_usd": 0.0229275
+    }
+  ]
+}

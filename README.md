@@ -123,3 +123,19 @@ The key is sent in a header, never in the URL or reports. Model availability and
 quota depend on your Google project; override `--model` when needed.
 
 Provider API reference: https://ai.google.dev/api/generate-content
+
+## Evaluation and reproducible demo
+
+Run `python scripts/demo.py` to observe and assert a blocked unsafe change followed
+by a passing clean change. See [demo instructions](docs/DEMO.md).
+
+Run `python scripts/evaluate.py` for the frozen real-PR pilot. Dataset provenance,
+agent-reviewed label limitations, results, latency and cost methodology are in
+[evaluation/README.md](evaluation/README.md). Four non-blocking real cases cannot
+establish recall; absent denominators are reported as null.
+
+The review workflow runs the trusted base revision against PR diff data, with
+read-only permissions and no model secrets. This avoids executing a modified
+checker from the proposed branch. Required checks must be configured on GitHub;
+workflow files alone do not enforce merge protection. Administrators able to
+change protection/workflow settings remain outside this threat model.

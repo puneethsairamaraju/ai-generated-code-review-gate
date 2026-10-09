@@ -1,0 +1,50 @@
+[
+  {
+    "id": "psf-6865",
+    "url": "https://github.com/psf/requests/pull/6865",
+    "title": "Update docstring for Session.verify to include string support (#6859)",
+    "base_sha": "47914226c2968802f2cdee3f6f0f6e06e4472f64",
+    "head_sha": "fc96f13387988f60aca3e1f1affc2078353f2e5f",
+    "diff": "diffs/psf-6865.diff",
+    "sha256": "f253b74b07f541195a0ea5fd091a01c5ccee22ac54e0e1d389c811f9a5e668a4",
+    "label_status": "agent-reviewed",
+    "expected_block": false,
+    "rationale": "Documentation-only addition explaining custom CA bundle paths; no runtime code or verification defaults change."
+  },
+  {
+    "id": "langchain-ai-11302",
+    "url": "https://github.com/langchain-ai/langchain/pull/11302",
+    "title": "Bump min version of numexpr",
+    "base_sha": "64febf77519f70a43d15da0b5df0f9bdc41d8792",
+    "head_sha": "801ddb12856c32a1c2d2f50e4c6638c57894d0c7",
+    "diff": "diffs/langchain-ai-11302.diff",
+    "sha256": "49a2da6eac1ac102de6006c129c00b58d57ae53fa9b3f4105d9ff5f720ad4c41",
+    "label_status": "agent-reviewed",
+    "expected_block": false,
+    "rationale": "Raises optional numexpr minimum version and updates lock hashes; no new execution path or disabled security check is added."
+  },
+  {
+    "id": "langchain-ai-5291",
+    "url": "https://github.com/langchain-ai/langchain/pull/5291",
+    "title": "Add an example to make the prompt more robust",
+    "base_sha": "aec642febb3daa7dbb6a19996aac2efa92bbf1bd",
+    "head_sha": "02454497703acace5991f4ceec22ae3cd99d9b01",
+    "diff": "diffs/langchain-ai-5291.diff",
+    "sha256": "e07e4dc0727bec3d4e823f349a01adf8e672f36aa0faa236fef034faaed23013",
+    "label_status": "agent-reviewed",
+    "expected_block": false,
+    "rationale": "Adds a math prompt example using exponentiation. numexpr.evaluate appears inside prompt text; it is not a Python eval call."
+  },
+  {
+    "id": "langchain-ai-22904",
+    "url": "https://github.com/langchain-ai/langchain/pull/22904",
+    "title": "community[major], experimental[patch]: Remove Python REPL from community",
+    "base_sha": "b5e2ba3a4705c7650edaaaf3207824509f521813",
+    "head_sha": "b00bce41a44ef59364b319a56bd15f2376c9c114",
+    "diff": "diffs/langchain-ai-22904.diff",
+    "sha256": "644851aae3229ff5b55c431d7b3a9ceac395c386d09d99f844636a90042998d6",
+    "label_status": "agent-reviewed",
+    "expected_block": false,
+    "rationale": "Removes the community REPL and points users to an explicit experimental migration. Under the rubric, explicitly migrated breaking APIs are not blockers; removed exec must not be flagged as added code."
+  }
+]

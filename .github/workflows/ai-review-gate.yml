@@ -1,33 +1,33 @@
 name: AI Review Gate
-
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
-
+    types: [opened, synchronize, reopened, ready_for_review]
 permissions:
   contents: read
-
 jobs:
   review:
+    name: review
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-      - name: Install review gate
-        run: pip install .
-      - name: Review pull request
+          python-version: '3.12'
+      - name: Fetch proposed commit as data
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git fetch --no-tags origin "$HEAD_SHA"
+      - name: Review using trusted base code
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PYTHONPATH: src
         run: |
-          ai-review-gate review \
-            --base "${{ github.event.pull_request.base.sha }}" \
-            --head "${{ github.event.pull_request.head.sha }}" \
-            --output review-report.json \
-            --markdown review-report.md
+          python -m review_gate.cli review --base "$BASE_SHA" --head "$HEAD_SHA" --output review-report.json --markdown review-report.md
       - name: Add report to job summary
         if: always()
         run: test -f review-report.md && cat review-report.md >> "$GITHUB_STEP_SUMMARY" || true
@@ -36,4 +36,3 @@ jobs:
         with:
           name: ai-review-report
           path: review-report.*
-
