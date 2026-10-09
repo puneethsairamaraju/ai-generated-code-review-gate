@@ -1,0 +1,53 @@
+{
+  "dataset": "synthetic adversarial probe, agent labels, not real PRs",
+  "confusion_matrix": {
+    "true_positive": 1,
+    "false_positive": 1,
+    "true_negative": 1,
+    "false_negative": 2
+  },
+  "false_positive_rate": 0.5,
+  "missed_issue_rate": 0.6666666666666666,
+  "details": [
+    {
+      "id": "direct-execution",
+      "source": "eval(user_input)",
+      "expected_block": true,
+      "actual_block": true,
+      "outcome": "true_positive",
+      "latency_seconds": 2.9099988751113415e-05
+    },
+    {
+      "id": "indirect-execution",
+      "source": "getattr(__builtins__, 'eval')(user_input)",
+      "expected_block": true,
+      "actual_block": false,
+      "outcome": "false_negative",
+      "latency_seconds": 1.6400008462369442e-05
+    },
+    {
+      "id": "unsafe-deserialization",
+      "source": "pickle.loads(untrusted_bytes)",
+      "expected_block": true,
+      "actual_block": false,
+      "outcome": "false_negative",
+      "latency_seconds": 1.0499963536858559e-05
+    },
+    {
+      "id": "safe-json",
+      "source": "json.loads(user_input)",
+      "expected_block": false,
+      "actual_block": false,
+      "outcome": "true_negative",
+      "latency_seconds": 7.999944500625134e-06
+    },
+    {
+      "id": "comment-only",
+      "source": "# eval(user_input) is unsafe; do not use it",
+      "expected_block": false,
+      "actual_block": true,
+      "outcome": "false_positive",
+      "latency_seconds": 1.3399985618889332e-05
+    }
+  ]
+}

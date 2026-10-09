@@ -1,6 +1,6 @@
 # AI-Generated Code Review Gate
 
-Verified locally with 15 tests and a live Gemini 3.8 Flash review of a synthetic
+Verified locally with 34 tests and a live Gemini 3.8 Flash review of a synthetic
 unsafe change. The gate correctly blocked the change. Synthetic benchmark:
 14 positive and 10 clean fixtures passed; these are not production accuracy metrics.
 
@@ -139,3 +139,5 @@ read-only permissions and no model secrets. This avoids executing a modified
 checker from the proposed branch. Required checks must be configured on GitHub;
 workflow files alone do not enforce merge protection. Administrators able to
 change protection/workflow settings remain outside this threat model.
+
+Detailed measured results and limitations: [verification report](docs/VERIFICATION.md).

@@ -24,3 +24,13 @@ The JSON report includes latency, provider token counts and an estimated cost.
 Prices are explicit inputs, not assumed account billing rates.
 
 This demo checks the gate, not the functional equivalence of the two sample programs.
+
+## Public GitHub demonstration
+
+[PR #1](https://github.com/puneethsairamaraju/ai-generated-code-review-gate/pull/1)
+retains the unsafe commit and its safe JSON-parsing fix.
+- [Unsafe change: review failed](https://github.com/puneethsairamaraju/ai-generated-code-review-gate/actions/runs/37988734414)
+- [Fixed change: review passed](https://github.com/puneethsairamaraju/ai-generated-code-review-gate/actions/runs/37988970143)
+
+Required branch-protection enforcement is pending approval; check failure is not
+yet a verified merge restriction.

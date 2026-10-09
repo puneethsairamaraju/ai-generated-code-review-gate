@@ -1,0 +1,92 @@
+{
+  "passed": false,
+  "summary": {
+    "blocking": 2,
+    "advisory": 0,
+    "total": 2
+  },
+  "findings": [
+    {
+      "rule_id": "SEC003",
+      "title": "Dangerous dynamic execution",
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 2,
+      "evidence": "eval(user_input)",
+      "reasoning": "Dynamic execution can turn untrusted input into arbitrary code execution.",
+      "source": "static"
+    },
+    {
+      "rule_id": "RUBRIC-SECURITY",
+      "title": "LLM rubric check failed",
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 2,
+      "evidence": "eval(user_input)",
+      "reasoning": "Using eval() directly on untrusted user_input introduces a critical arbitrary code execution / code injection vulnerability.",
+      "source": "llm"
+    }
+  ],
+  "rubric_results": [
+    {
+      "id": "RUBRIC-SECURITY",
+      "passed": false,
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 2,
+      "reasoning": "Using eval() directly on untrusted user_input introduces a critical arbitrary code execution / code injection vulnerability.",
+      "evidence": "eval(user_input)"
+    },
+    {
+      "id": "RUBRIC-CONTRACT",
+      "passed": true,
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 2,
+      "reasoning": "There is no concrete evidence in the diff that public API, schema, error, or behavioral contracts were broken.",
+      "evidence": ""
+    },
+    {
+      "id": "RUBRIC-ERRORS",
+      "passed": true,
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 2,
+      "reasoning": "There is no concrete evidence in the diff of failure paths leaking sensitive information or breaking error-handling contracts.",
+      "evidence": ""
+    },
+    {
+      "id": "RUBRIC-TESTS",
+      "passed": true,
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 2,
+      "reasoning": "Based strictly on the diff provided, there is no concrete evidence of existing tests being removed or regressed.",
+      "evidence": ""
+    },
+    {
+      "id": "RUBRIC-MAINTAINABILITY",
+      "passed": true,
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 2,
+      "reasoning": "The diff is minimal and does not introduce architectural complexity, despite being unsafe.",
+      "evidence": ""
+    }
+  ],
+  "metadata": {
+    "api_latency_seconds": 89.387373,
+    "input_tokens": 380,
+    "output_tokens": 284,
+    "thinking_tokens": 12206,
+    "total_latency_seconds": 89.388142,
+    "estimated_cost_usd": 0.0471225,
+    "pricing": {
+      "input_usd_per_million": 0.75,
+      "output_usd_per_million": 3.75
+    },
+    "llm_enabled": true,
+    "provider": "gemini",
+    "model": "gemini-3.8-flash"
+  }
+}

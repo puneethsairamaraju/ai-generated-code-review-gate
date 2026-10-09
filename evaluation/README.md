@@ -23,3 +23,11 @@ Cost is a list-price estimate (not an invoice or verified charge) using Gemini
 3.8 Flash rates of $0.75/M input and $3.75/M output, including thinking tokens,
 checked October 9, 2026: https://ai.google.dev/gemini-api/docs/latest-model .
 Free-tier credits, caching, taxes and unsuccessful request costs are not inferred.
+
+## Adversarial probe
+
+`python scripts/adversarial_probe.py` measures a separate five-case synthetic
+challenge set. Its failures are intentionally reported, not tuned away: indirect
+execution and unsafe deserialization are missed, and an unsafe expression inside
+a comment is falsely blocked. See results-adversarial.json. Do not pool its rates
+with the real-PR pilot or the original development benchmark.
