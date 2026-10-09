@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "RUBRIC-SECURITY",
+      "question": "Does the change avoid injection, secret exposure, unsafe deserialization, broken authorization, and insecure defaults?",
+      "default_severity": "blocking"
+    },
+    {
+      "id": "RUBRIC-CONTRACT",
+      "question": "Does the change preserve public API, schema, error, and behavioral contracts, or explicitly migrate them?",
+      "default_severity": "blocking"
+    },
+    {
+      "id": "RUBRIC-ERRORS",
+      "question": "Are failure paths handled, logged appropriately, and surfaced without leaking sensitive information?",
+      "default_severity": "advisory"
+    },
+    {
+      "id": "RUBRIC-TESTS",
+      "question": "Are meaningful tests added or updated for new behavior, edge cases, and regressions?",
+      "default_severity": "advisory"
+    },
+    {
+      "id": "RUBRIC-MAINTAINABILITY",
+      "question": "Is the change understandable, scoped, and consistent with nearby code without needless complexity?",
+      "default_severity": "advisory"
+    }
+  ]
+}
+

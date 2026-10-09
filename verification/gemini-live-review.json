@@ -1,0 +1,102 @@
+{
+  "passed": false,
+  "summary": {
+    "blocking": 2,
+    "advisory": 2,
+    "total": 4
+  },
+  "findings": [
+    {
+      "rule_id": "SEC003",
+      "title": "Dangerous dynamic execution",
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 1,
+      "evidence": "eval(user_input)",
+      "reasoning": "Dynamic execution can turn untrusted input into arbitrary code execution.",
+      "source": "static"
+    },
+    {
+      "rule_id": "RUBRIC-SECURITY",
+      "title": "LLM rubric check failed",
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 1,
+      "evidence": "eval(user_input)",
+      "reasoning": "Directly executing user input with eval allows arbitrary code injection and execution.",
+      "source": "llm"
+    },
+    {
+      "rule_id": "RUBRIC-ERRORS",
+      "title": "LLM rubric check failed",
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 1,
+      "evidence": "eval(user_input)",
+      "reasoning": "Execution of eval on user input is unhandled and lacks error catching or logging for evaluation failures.",
+      "source": "llm"
+    },
+    {
+      "rule_id": "RUBRIC-TESTS",
+      "title": "LLM rubric check failed",
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 1,
+      "evidence": "eval(user_input)",
+      "reasoning": "No automated tests were added or updated to verify the behavior or handle edge cases.",
+      "source": "llm"
+    }
+  ],
+  "rubric_results": [
+    {
+      "id": "RUBRIC-SECURITY",
+      "passed": false,
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 1,
+      "reasoning": "Directly executing user input with eval allows arbitrary code injection and execution.",
+      "evidence": "eval(user_input)"
+    },
+    {
+      "id": "RUBRIC-CONTRACT",
+      "passed": true,
+      "severity": "blocking",
+      "file": "app.py",
+      "line": 1,
+      "reasoning": "There is no concrete evidence of broken public API, schema, or behavioral contracts in the diff.",
+      "evidence": ""
+    },
+    {
+      "id": "RUBRIC-ERRORS",
+      "passed": false,
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 1,
+      "reasoning": "Execution of eval on user input is unhandled and lacks error catching or logging for evaluation failures.",
+      "evidence": "eval(user_input)"
+    },
+    {
+      "id": "RUBRIC-TESTS",
+      "passed": false,
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 1,
+      "reasoning": "No automated tests were added or updated to verify the behavior or handle edge cases.",
+      "evidence": "eval(user_input)"
+    },
+    {
+      "id": "RUBRIC-MAINTAINABILITY",
+      "passed": true,
+      "severity": "advisory",
+      "file": "app.py",
+      "line": 1,
+      "reasoning": "The change is concise and scoped without unnecessary structural complexity.",
+      "evidence": ""
+    }
+  ],
+  "metadata": {
+    "llm_enabled": true,
+    "provider": "gemini",
+    "model": "gemini-3.8-flash"
+  }
+}

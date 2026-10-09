@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+dist/
+build/
+*.egg-info/
+review-report.json
+review-report.md
+benchmark-results.json
+.env
+.env.*
+!.env.example
+
